@@ -1,16 +1,20 @@
+import json
 import socket
 from game_data_handler import GameDataHandler
 
 class MMORPGClient:
-    def __init__(self, server_ip, server_port, player_name, password):
+    def __init__(self, server_ip, server_port, config_file):
         self.server_ip = server_ip
         self.server_port = server_port
-        self.player_name = player_name
-        self.password = password
         self.socket = None
         self.state = 'LOGIN'  # Initial state is 'LOGIN'
         self.buffer = ""
         self.data_handler = GameDataHandler()  # Initialize the game data handler
+        # Load username and password from config file
+        with open(config_file, 'r') as file:
+            config = json.load(file)
+            self.player_name = config["player_name"]
+            self.password = config["password"]
 
     def connect(self):
         """Open a TCP connection to the server."""
@@ -73,7 +77,5 @@ class MMORPGClient:
 
 # Example usage:
 if __name__ == "__main__":
-    player_name = "cashimor"  # Replace with actual player name
-    password = "Shaniah"  # Replace with actual password
-    client = MMORPGClient("10.0.1.3", 5317, player_name, password)  # Replace with actual server IP and port
+    client = MMORPGClient("10.0.1.3", 5317, "config.json")  # Replace with actual server IP and port
     client.run()
