@@ -1,4 +1,5 @@
 import socket
+from game_data_handler import GameDataHandler
 
 class MMORPGClient:
     def __init__(self, server_ip, server_port, player_name, password):
@@ -8,6 +9,8 @@ class MMORPGClient:
         self.password = password
         self.socket = None
         self.state = 'LOGIN'  # Initial state is 'LOGIN'
+        self.buffer = ""
+        self.data_handler = GameDataHandler()  # Initialize the game data handler
 
     def connect(self):
         """Open a TCP connection to the server."""
@@ -16,7 +19,7 @@ class MMORPGClient:
             self.socket.connect((self.server_ip, self.server_port))
             print(f"Connected to server {self.server_ip}:{self.server_port}")
             # Send login command after connection
-            self.send_message(f"login {self.player_name} {self.password}")
+            self.send_message(f"login {self.player_name} {self.password}\n")
         except socket.error as e:
             print(f"Error connecting to server: {e}")
             return False
@@ -30,17 +33,21 @@ class MMORPGClient:
             print(f"Error sending message: {e}")
 
     def receive_message(self):
-        """Receive data from the server."""
+        """Receive data from the server and process it line by line."""
         try:
-            data = self.socket.recv(1024)  # Receive 1024 bytes at a time
+            data = self.socket.recv(1024).decode('utf-8')  # Receive 1024 bytes at a time
             if data:
-                return data.decode('utf-8')
+                self.buffer += data  # Append data to the buffer
+                lines = self.buffer.split("\n")  # Split data by newline
+                self.buffer = lines[-1]  # Keep the last incomplete line in the buffer
+                return lines[:-1]  # Return all complete lines
         except socket.error as e:
             print(f"Error receiving message: {e}")
-        return None
+        return []
 
     def process_login(self, response):
         """Handle the login state."""
+        print(f"Login data received: {response}")
         if response.startswith('000'):
             print("Login successful!")
             print(f"Server response: {response}")
@@ -49,30 +56,24 @@ class MMORPGClient:
             print(f"Login failed or other response: {response}")
 
     def process_gameplay(self, response):
-        """Handle gameplay-related messages."""
-        print(f"Game data received: {response}")
-        # Process game data, like room files, commands, etc.
+        """Forward the game data to the handler."""
+        self.data_handler.process_game_data(response)
 
     def run(self):
         """Main loop for the client."""
         if not self.connect():
             return
 
-        while True:
-            response = self.receive_message()
-            if not response:
-                break  # End loop if no response
-
-            if self.state == 'LOGIN':
-                self.process_login(response)
-            elif self.state == 'GAMEPLAY':
-                self.process_gameplay(response)
+        while self.state != 'STOP':
+            lines = self.receive_message()
+            for line in lines:
+                self.process_gameplay(line)
 
         self.socket.close()
 
 # Example usage:
 if __name__ == "__main__":
-    player_name = "player1"  # Replace with actual player name
-    password = "password123"  # Replace with actual password
-    client = MMORPGClient("mosha.net", 5317, player_name, password)  # Replace with actual server IP and port
+    player_name = "cashimor"  # Replace with actual player name
+    password = "Shaniah"  # Replace with actual password
+    client = MMORPGClient("10.0.1.3", 5317, player_name, password)  # Replace with actual server IP and port
     client.run()
