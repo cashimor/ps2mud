@@ -19,7 +19,7 @@ def init_pygame():
     # Set the modelview matrix (move camera back)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    glTranslatef(0,0,0)  # Adjust the distance to see the model
+    glTranslatef(-10,0,-30)  # Adjust the distance to see the model
 
     # Set the background color
     glClearColor(0.3, 0.3, 0.1, 1)
@@ -31,7 +31,27 @@ def init_pygame():
     glLightfv(GL_LIGHT0, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))  # Light color
 
 
-def draw_model(model):
+def load_texture(texture_file):
+    texture_surface = pygame.image.load(texture_file)
+    texture_data = pygame.image.tostring(texture_surface, "RGB", 1)
+
+    width = texture_surface.get_width()
+    height = texture_surface.get_height()
+
+    glEnable(GL_TEXTURE_2D)
+    texture_id = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, texture_id)
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+
+    return texture_id
+
+
+def draw_model(model, texture_id):
+    glBindTexture(GL_TEXTURE_2D, texture_id)  # Bind the texture
+    glColor3f(1.0, 1.0, 0.0)
     glBegin(GL_TRIANGLES)
     for face in model.faces:
         for i in range(3):
@@ -39,15 +59,18 @@ def draw_model(model):
             glNormal3fv(model.normals[normal_index])
 
             vertex_index = face['vertices'][i]
+            glTexCoord2fv(model.texture_coords[vertex_index])  # Apply texture coordinates
             glVertex3fv(model.vertices[vertex_index])
     glEnd()
-
 
 def main():
     init_pygame()
 
     # Load the MilkShape model
-    model = MilkShapeModel("resources\church.txt")
+    model = MilkShapeModel("resources/bush.txt")
+
+    # Load the texture
+    texture_id = load_texture("resources/texture_.png")  # Replace with your actual texture file
 
     running = True
     while running:
@@ -57,14 +80,13 @@ def main():
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        # Render the model
-        draw_model(model)
-
+        # Render the model with the texture
+        draw_model(model, texture_id)
+        #draw_cube()
         pygame.display.flip()
         pygame.time.wait(10)
 
     pygame.quit()
-
 
 if __name__ == "__main__":
     main()
