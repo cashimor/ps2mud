@@ -1,6 +1,11 @@
 import json
 import socket
+import pygame
 from game_data_handler import GameDataHandler
+import milkshape_renderer
+import graphics
+from OpenGL.GL import *
+from OpenGL.GLU import *
 
 class MMORPGClient:
     def __init__(self, server_ip, server_port, config_file):
@@ -64,11 +69,30 @@ class MMORPGClient:
         self.data_handler.process_game_data(response)
 
     def run(self):
+        milkshape_renderer.init_pygame()
+
         """Main loop for the client."""
         if not self.connect():
             return
 
         while self.state != 'STOP':
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+                # Process incoming game commands (mocked for now)
+                # For example: data_handler.process_game_data("001 NAME church MODEL church.txt")
+                #              data_handler.process_game_data("003 LOCATE church X 100 Y 0 Z 100")
+
+                # Update the camera based on player position
+            graphics.update_camera(self.data_handler.player_position)
+
+            # Clear buffers and render the scene
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+            graphics.draw_scene(self.data_handler.objects)
+
+            pygame.display.flip()
+            pygame.time.wait(10)
             lines = self.receive_message()
             for line in lines:
                 self.process_gameplay(line)
