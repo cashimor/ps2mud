@@ -1060,7 +1060,7 @@ signOutButton.addEventListener('click', async () => {
   signedIn.hidden = true;
   moveControls.hidden = true;
   triggerButton.hidden = true;
-  connectionState.textContent = 'LOCAL PREVIEW';
+  connectionState.textContent = 'READY TO PLAY';
   playState.textContent = 'Signed out.';
 });
 
