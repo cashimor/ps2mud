@@ -1,0 +1,24 @@
+# Private legacy snapshot. Keep these directories local while the new version
+# is developed in separate directories. Server/players contains passwords.
+/Client/
+/Server/
+**/players/
+
+# Future local account stores and configuration.
+.env
+.env.*
+*.key
+*.pem
+/private/
+/.tools/
+/.runtime/
+/gateway/node_modules/
+/gateway/dist/
+/browser/node_modules/
+/browser/dist/
+/browser/public/assets/
+*.sqlite
+*.sqlite3
+*.db
+__pycache__/
+*.pyc

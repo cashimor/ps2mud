@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PS2MUD · Village</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="stage" aria-label="3D view of the original PS2MUD world"></div>
+      <header class="masthead">
+        <div class="brand"><span class="brand-mark">✦</span><span>PS2<span class="brand-accent">MUD</span></span></div>
+        <div class="masthead-right"><span class="eyebrow">THE VILLAGE</span><span class="status"><i></i><span id="connection-state">LOCAL PREVIEW</span></span></div>
+      </header>
+      <aside class="panel">
+        <div class="panel-kicker">THE OLD WORLD, REOPENED</div>
+        <h1>Village<br /><em>crossroads</em></h1>
+        <p>Original room layouts, models, and textures rebuilt for your browser.</p>
+        <section class="play-panel" aria-label="Play in the village">
+          <div class="field-label">PLAY THE LIVE WORLD</div>
+          <form id="account-form" method="post">
+            <input id="account-name" name="name" type="text" autocomplete="username" placeholder="Character name" required minlength="3" maxlength="20" />
+            <input id="account-password" name="password" type="password" autocomplete="current-password" placeholder="Password (12+ characters for new account)" required />
+            <select id="account-gender" name="gender" aria-label="Character appearance"><option value="1">Male character</option><option value="2">Female character</option></select>
+            <div class="account-actions"><button type="submit" data-action="login">Sign in</button><button type="button" id="create-account">Create character</button></div>
+          </form>
+          <div id="signed-in" hidden><span id="character-name"></span><button id="sign-out" type="button">Sign out</button></div>
+          <div id="play-state" role="status">Sign in to move through the live world.</div>
+          <div id="game-hud" class="game-hud" hidden>
+            <div class="vitals" aria-label="Character status">
+              <div><span>HP</span><strong id="hp-value">—</strong><i><b id="hp-bar"></b></i></div>
+              <div><span>SP</span><strong id="sp-value">—</strong><i><b id="sp-bar"></b></i></div>
+            </div>
+            <div class="game-tabs" aria-label="Game information">
+              <button type="button" data-list-command="inventory">Inventory</button>
+              <button type="button" data-list-command="score">Character</button>
+              <button type="button" data-list-command="who">Players</button>
+              <button type="button" data-list-command="help">Help</button>
+              <button type="button" id="shop-button" hidden>Shop</button>
+            </div>
+            <div id="controller-select-hint" class="controller-select-hint" hidden></div>
+            <div id="game-list" class="game-list" hidden></div>
+            <div id="shop-panel" class="shop-panel" hidden>
+              <div class="shop-heading"><strong>SHOP</strong><button type="button" id="shop-close" aria-label="Close shop">Close</button></div>
+              <div class="shop-tabs"><button type="button" id="shop-buy">Buy</button><button type="button" id="shop-sell">Sell</button></div>
+              <div id="shop-list" class="shop-list" aria-live="polite"></div>
+            </div>
+            <div id="reading-panel" class="reading-panel" hidden>
+              <div class="reading-heading"><strong id="reading-title">READING</strong><button type="button" id="reading-close" aria-label="Close reading">Close</button></div>
+              <pre id="reading-text"></pre>
+            </div>
+            <div class="field-label message-label">WORLD MESSAGES</div>
+            <div id="message-log" class="message-log" role="log" aria-label="World messages" aria-live="polite"></div>
+            <form id="say-form" class="say-form">
+              <label for="say-input" id="message-label">Say something</label>
+              <div class="message-modes"><button type="button" id="say-mode" class="active">Say</button><button type="button" id="shout-mode">Shout</button></div>
+              <div><input id="say-input" type="text" maxlength="200" autocomplete="off" placeholder="Type a message…" required /><button type="submit" id="say-button" disabled>Send</button></div>
+              <small id="message-hint">When standing close to the message board, your words are written there.</small>
+            </form>
+          </div>
+          <div id="move-controls" class="move-controls" hidden>
+            <button type="button" data-direction="forward" aria-label="Move forward">↑</button>
+            <div><button type="button" data-direction="backward" aria-label="Move backward">↓</button></div>
+            <button type="button" id="examine-button" aria-pressed="false">Examine</button>
+            <button type="button" id="attack-button" title="Attack one grid step in the character's facing direction">Attack</button>
+            <button type="button" id="spell-button" title="Cast magic missile in the character's facing direction (level 5, 10 SP)">Magic missile</button>
+            <button type="button" id="trigger-button" hidden></button>
+            <small>W/S move · Q/E aim · Space attack · C cast magic missile · hold X to examine · F interact</small>
+          </div>
+          <div id="gamepad-status" class="gamepad-status" role="status">Controller: connect a gamepad and press a button.</div>
+          <small class="gamepad-help">Controller: left stick / D-pad move · right stick camera · L2/R2 turn · L1 examine · Cross/A attack · Circle/B cast · Square/X interact · Select/Back commands</small>
+        </section>
+        <div class="rule"></div>
+        <div class="field-label">CAMERA FOCUS</div>
+        <div id="room-buttons" class="room-buttons"></div>
+        <button id="character-button" class="character-button" type="button"><span>Inspect character</span><b>↗</b></button>
+        <label class="shadow-control"><input id="shadow-toggle" type="checkbox" checked /><span>Show ground shadows</span></label>
+        <div class="sound-controls"><label class="sound-control"><input id="sound-toggle" type="checkbox" checked /><span>Play sound effects</span></label><button id="sound-test" type="button">Test</button></div>
+        <div id="sound-status" class="sound-status" role="status" aria-live="polite"></div>
+        <div class="sound-controls"><label class="sound-control"><input id="music-toggle" type="checkbox" checked /><span>Play music</span></label><button id="music-preview" type="button">Preview</button></div>
+        <div id="music-status" class="sound-status" role="status" aria-live="polite"></div>
+        <div class="rule"></div>
+        <div class="controls-list">
+          <div><kbd>Drag</kbd><span>Orbit</span></div>
+          <div><kbd>Scroll</kbd><span>Zoom</span></div>
+          <div><kbd>Right drag</kbd><span>Pan</span></div>
+          <div><kbd>W / S</kbd><span>Forward / backward</span></div>
+          <div><kbd>Q / E</kbd><span>Turn character</span></div>
+          <div><kbd>Gamepad</kbd><span>Standard controller supported</span></div>
+        </div>
+      </aside>
+      <footer class="footer">
+        <div id="load-state">Loading original assets…</div>
+        <div id="scene-stats"></div>
+      </footer>
+      <div id="error" role="alert" hidden></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
