@@ -38,7 +38,7 @@ async function ensureMusic(): Promise<boolean> {
   if (musicNode) return true;
   if (!musicLoad) {
     const activeContext = context;
-    musicLoad = activeContext.audioWorklet.addModule('/music-worklet.js').then(() => {
+    musicLoad = activeContext.audioWorklet.addModule(`${import.meta.env.BASE_URL}music-worklet.js`).then(() => {
       musicNode = new AudioWorkletNode(activeContext, 'ps2mud-music', { outputChannelCount: [1] });
       musicOutput = activeContext.createGain();
       musicOutput.gain.value = musicEnabled ? 0.35 : 0;
@@ -79,7 +79,7 @@ export async function playSound(name: string): Promise<SoundResult> {
   const activeContext = context;
   let pending = buffers.get(name);
   if (!pending) {
-    pending = fetch(`/assets/audio/${encodeURIComponent(name)}.wav`)
+    pending = fetch(`${import.meta.env.BASE_URL}assets/audio/${encodeURIComponent(name)}.wav`)
       .then(response => response.ok ? response.arrayBuffer() : null)
       .then(data => data ? activeContext.decodeAudioData(data) : null)
       .catch(() => null);

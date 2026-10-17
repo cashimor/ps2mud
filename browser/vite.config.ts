@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: process.env.PUBLIC_BASE_PATH ?? '/',
   server: {
     // The project is on a Windows drive while Vite runs in WSL; inotify does
     // not reliably report edits made by Windows tools on /mnt/c.

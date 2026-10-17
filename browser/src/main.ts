@@ -494,7 +494,7 @@ function animate(): void {
 animate();
 
 async function loadWorld(): Promise<void> {
-  const response = await fetch('/assets/scene.json');
+  const response = await fetch(`${import.meta.env.BASE_URL}assets/scene.json`);
   if (!response.ok) throw new Error('Converted assets are missing. Run tools/build_browser_assets.py.');
   const manifest = await response.json() as Manifest;
   setAvailableSounds(manifest.sounds ?? []);
@@ -512,7 +512,7 @@ async function loadWorld(): Promise<void> {
     if (!manifest.stats.models[name]) return Promise.reject(new Error(`Unknown model ${name}`));
     let pending = modelLoads.get(name);
     if (!pending) {
-      pending = loader.loadAsync(`/assets/models/${encodeURIComponent(name)}.gltf`).then(gltf => gltf.scene);
+      pending = loader.loadAsync(`${import.meta.env.BASE_URL}assets/models/${encodeURIComponent(name)}.gltf`).then(gltf => gltf.scene);
       modelLoads.set(name, pending);
     }
     return pending;
@@ -521,7 +521,7 @@ async function loadWorld(): Promise<void> {
     if (!manifest.stats.textures[name]) return Promise.reject(new Error(`Unknown texture ${name}`));
     let pending = textureLoads.get(name);
     if (!pending) {
-      pending = textureLoader.loadAsync(`/assets/textures/${encodeURIComponent(name)}.png`).then(texture => {
+      pending = textureLoader.loadAsync(`${import.meta.env.BASE_URL}assets/textures/${encodeURIComponent(name)}.png`).then(texture => {
         texture.colorSpace = THREE.SRGBColorSpace;
         texture.flipY = false;
         texture.wrapS = THREE.RepeatWrapping;
@@ -1015,7 +1015,7 @@ function showAccount(name: string): void {
 }
 
 async function accountRequest(path: string, payload: object): Promise<{ account?: { name: string }; error?: string }> {
-  const response = await fetch(`/api/${path}`, {
+  const response = await fetch(`${import.meta.env.BASE_URL}api/${path}`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
   });
   const result = await response.json() as { account?: { name: string }; error?: string };
@@ -1073,7 +1073,7 @@ function connectGame(): void {
   resetSceneObjects();
   triggerButton.hidden = true;
   const scheme = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const socket = new WebSocket(`${scheme}//${location.host}/api/game`);
+  const socket = new WebSocket(`${scheme}//${location.host}${import.meta.env.BASE_URL}api/game`);
   gameSocket = socket;
   socket.addEventListener('message', event => {
     if (gameSocket !== socket) return;
@@ -2031,7 +2031,7 @@ window.addEventListener('blur', () => {
   gamepadPressed.clear();
 });
 
-void fetch('/api/me').then(async response => {
+void fetch(`${import.meta.env.BASE_URL}api/me`).then(async response => {
   if (!response.ok) return;
   const data = await response.json() as { account?: { name: string } };
   if (data.account) showAccount(data.account.name);

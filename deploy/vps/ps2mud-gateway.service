@@ -1,0 +1,25 @@
+[Unit]
+Description=PS2MUD account and WebSocket gateway
+After=network.target ps2mud-pike.service
+Wants=ps2mud-pike.service
+
+[Service]
+Type=simple
+User=chatgpt
+Group=chatgpt
+WorkingDirectory=/home/chatgpt/ps2mud
+Environment=NODE_ENV=production
+Environment=PORT=8080
+Environment=PIKE_PORT=15318
+Environment=PUBLIC_ORIGIN=https://vps.mosha.net
+ExecStart=/home/chatgpt/ps2mud/runtime/node /home/chatgpt/ps2mud/gateway/dist/server.js
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/chatgpt/ps2mud/private /home/chatgpt/ps2mud/.runtime/pike/players
+
+[Install]
+WantedBy=multi-user.target
