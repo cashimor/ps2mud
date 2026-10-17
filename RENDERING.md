@@ -50,7 +50,7 @@ The elevator platform model's top is at local height 0 and Pike places it at hei
 
 Character movement follows the original client's timing: Pike accepts or blocks each grid step, and the browser moves a visible character toward each accepted `003 LOCATE` target at about 0.1 world units per 60 Hz frame. Holding an arrow key or WASD repeats move requests at most every ten 60 Hz frames, with one request outstanding at a time. A blocked `997` reply leaves the character at the last accepted position.
 
-The pebble path uses the original atlas and model UVs. Its clearer browser appearance comes from the higher display resolution and modern texture sampling; the converter did not replace or upscale the artwork.
+The pebble path uses the original atlas and model UVs. The creator compared both texture filters and found nearest-neighbor sampling much closer to the PS2 image, including its pebble moiré. Nearest is now the default; the on-page Texture sampling button switches to smoother filtering if preferred. The converter did not replace or upscale the artwork.
 
 The pine meshes (`pine.txt` and `d123pine.txt`) may be third-party art, according to the creator. Their provenance and redistribution rights need review before publishing converted assets. Both the legacy source and generated browser assets remain ignored by Git.
 

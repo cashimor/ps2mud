@@ -509,7 +509,7 @@ async function loadWorld(): Promise<void> {
   const modelLoads = new Map<string, Promise<THREE.Group>>();
   const textureLoads = new Map<string, Promise<THREE.Texture>>();
   const loadedTextureSet = new Set<THREE.Texture>();
-  let nearestTextureSampling = false;
+  let nearestTextureSampling = true;
   const setTextureSampling = (texture: THREE.Texture): void => {
     texture.magFilter = nearestTextureSampling ? THREE.NearestFilter : THREE.LinearFilter;
     texture.minFilter = nearestTextureSampling ? THREE.NearestFilter : THREE.LinearMipmapLinearFilter;
@@ -719,19 +719,17 @@ async function loadWorld(): Promise<void> {
     for (const shadow of shadows) shadow.visible = shadowToggle.checked;
     for (const material of churchShadowMaterials) material.opacity = shadowToggle.checked ? 0.24 : 0;
   });
-  if (import.meta.env.DEV) {
-    const comparison = document.createElement('button');
-    comparison.type = 'button';
-    comparison.className = 'filter-comparison';
-    comparison.textContent = 'Texture sampling: Smooth';
-    comparison.title = 'Compare atlas seams at the same camera angle';
-    comparison.addEventListener('click', () => {
-      nearestTextureSampling = !nearestTextureSampling;
-      for (const texture of loadedTextureSet) setTextureSampling(texture);
-      comparison.textContent = `Texture sampling: ${nearestTextureSampling ? 'Nearest' : 'Smooth'}`;
-    });
-    shadowToggle.closest('label')?.after(comparison);
-  }
+  const comparison = document.createElement('button');
+  comparison.type = 'button';
+  comparison.className = 'filter-comparison';
+  comparison.textContent = 'Texture sampling: Nearest';
+  comparison.title = 'Switch between original-style sharp and smooth texture sampling';
+  comparison.addEventListener('click', () => {
+    nearestTextureSampling = !nearestTextureSampling;
+    for (const texture of loadedTextureSet) setTextureSampling(texture);
+    comparison.textContent = `Texture sampling: ${nearestTextureSampling ? 'Nearest' : 'Smooth'}`;
+  });
+  shadowToggle.closest('label')?.after(comparison);
   status.textContent = `${Object.keys(manifest.rooms).length} original rooms and one character rendered`;
   stats.textContent = `${objects.length} ROOM OBJECTS  ·  ${triangleCount.toLocaleString()} TRIANGLES  ·  ${textureNames.length} ATLASES`;
 }
