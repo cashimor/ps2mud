@@ -109,6 +109,8 @@ h1 em { color: #e8bd77; font-weight: 500; }
 .character-button b { font-size: 16px; font-weight: 400; }
 .shadow-control { display: flex; align-items: center; gap: 9px; margin: 18px 0 0; color: #c8d0d2; font-size: 11px; cursor: pointer; }
 .shadow-control input { accent-color: #e8bd77; }
+.filter-comparison { display: block; margin-top: 10px; padding: 7px 10px; color: #f0dfbd; background: rgba(229,184,112,.13); border: 1px solid rgba(229,184,112,.52); cursor: pointer; font-size: 11px; }
+.filter-comparison:hover { background: rgba(229,184,112,.28); }
 .sound-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
 .sound-control { display: flex; align-items: center; gap: 9px; color: #c8d0d2; font-size: 11px; cursor: pointer; }
 .sound-control input { accent-color: #e8bd77; }

@@ -508,6 +508,14 @@ async function loadWorld(): Promise<void> {
   const textureLoader = new THREE.TextureLoader();
   const modelLoads = new Map<string, Promise<THREE.Group>>();
   const textureLoads = new Map<string, Promise<THREE.Texture>>();
+  const loadedTextureSet = new Set<THREE.Texture>();
+  let nearestTextureSampling = false;
+  const setTextureSampling = (texture: THREE.Texture): void => {
+    texture.magFilter = nearestTextureSampling ? THREE.NearestFilter : THREE.LinearFilter;
+    texture.minFilter = nearestTextureSampling ? THREE.NearestFilter : THREE.LinearMipmapLinearFilter;
+    texture.needsUpdate = true;
+    loadedTextureSet.add(texture);
+  };
   const loadModel = (name: string): Promise<THREE.Group> => {
     if (!manifest.stats.models[name]) return Promise.reject(new Error(`Unknown model ${name}`));
     let pending = modelLoads.get(name);
@@ -526,7 +534,7 @@ async function loadWorld(): Promise<void> {
         texture.flipY = false;
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
-        texture.magFilter = THREE.LinearFilter;
+        setTextureSampling(texture);
         return texture;
       });
       textureLoads.set(name, pending);
@@ -548,7 +556,7 @@ async function loadWorld(): Promise<void> {
     let water = waterTextures.get(key);
     if (!water) {
       water = source.clone();
-      water.needsUpdate = true;
+      setTextureSampling(water);
       waterTextures.set(key, water);
       scrollingWaterTextures.push(water);
     }
@@ -711,6 +719,19 @@ async function loadWorld(): Promise<void> {
     for (const shadow of shadows) shadow.visible = shadowToggle.checked;
     for (const material of churchShadowMaterials) material.opacity = shadowToggle.checked ? 0.24 : 0;
   });
+  if (import.meta.env.DEV) {
+    const comparison = document.createElement('button');
+    comparison.type = 'button';
+    comparison.className = 'filter-comparison';
+    comparison.textContent = 'Texture sampling: Smooth';
+    comparison.title = 'Compare atlas seams at the same camera angle';
+    comparison.addEventListener('click', () => {
+      nearestTextureSampling = !nearestTextureSampling;
+      for (const texture of loadedTextureSet) setTextureSampling(texture);
+      comparison.textContent = `Texture sampling: ${nearestTextureSampling ? 'Nearest' : 'Smooth'}`;
+    });
+    shadowToggle.closest('label')?.after(comparison);
+  }
   status.textContent = `${Object.keys(manifest.rooms).length} original rooms and one character rendered`;
   stats.textContent = `${objects.length} ROOM OBJECTS  ·  ${triangleCount.toLocaleString()} TRIANGLES  ·  ${textureNames.length} ATLASES`;
 }
