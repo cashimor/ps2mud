@@ -266,6 +266,7 @@ const walkSpeeds = new Map<THREE.Group, number>();
 const pendingEntityTravel = new Map<string, { from: THREE.Vector3; to: THREE.Vector3 }>();
 const rotatingYEntities = new Set<string>();
 const sceneObjects = new Map<string, THREE.Group>();
+const sceneObjectBias = new Map<string, number>();
 const previewTransforms = new Map<string, { position: THREE.Vector3; rotation: THREE.Euler; visible: boolean }>();
 const previewChildren = new Map<string, THREE.Object3D[]>();
 const seenSceneObjects = new Set<string>();
@@ -629,12 +630,14 @@ async function loadWorld(): Promise<void> {
     });
     for (const fill of churchShadowFills) instance.add(fill);
     instance.name = object.name;
-    instance.position.set(object.position[0], object.position[1] + (object.bias ? 0.1 : 0), object.position[2]);
+    const positionBias = object.bias ? 0.1 : 0;
+    instance.position.set(object.position[0], object.position[1] + positionBias, object.position[2]);
     instance.rotation.set(...object.rotation);
     instance.visible = object.placed;
     scene.add(instance);
     if (sceneObjects.has(object.name)) throw new Error(`Duplicate room object name: ${object.name}`);
     sceneObjects.set(object.name, instance);
+    sceneObjectBias.set(object.name, positionBias);
     previewTransforms.set(object.name, { position: instance.position.clone(), rotation: instance.rotation.clone(), visible: instance.visible });
     previewChildren.set(object.name, [...instance.children]);
     if (shadow) shadows.push(instance);
@@ -1317,6 +1320,7 @@ function applyWorldLine(line: string): void {
     const position = new THREE.Vector3(Number(x), Number(y), Number(z));
     const roomObject = sceneObjects.get(name);
     if (roomObject && !actors.has(name)) {
+      position.y += sceneObjectBias.get(name) ?? 0;
       roomObject.visible = true;
       const duration = name === 'elevator' ? 8 : /^door[123]$/.test(name) ? 0.4 : 0;
       if (seenSceneObjects.has(name) && duration && !roomObject.position.equals(position)) {
